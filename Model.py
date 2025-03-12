@@ -97,7 +97,7 @@ plt.title("Resume Category Distribution")
 # plt.show()
 
 '''Step 5 : Convert Text to Features (TF-IDF)'''
-tfidf = TfidfVectorizer(ngram_range=(1,2),max_features=5000)
+tfidf = TfidfVectorizer(ngram_range=(1,2), max_features=3000, sublinear_tf=True, min_df=2, max_df=0.85)
 X_tfidf = tfidf.fit_transform(df['Cleaned_Resume_text'])
 
 '''Step 6 : Encode Job Categories'''
@@ -110,7 +110,7 @@ label_mappings = dict(zip(label_encoder.classes_, label_encoder.transform(label_
 print("Category Mappings :", label_mappings) 
 
 '''Step 7: Chi-Square Feature Selection'''
-feature_selector = SelectKBest(chi2, k=5000)
+feature_selector = SelectKBest(chi2, k=1000)
 X_selected = feature_selector.fit_transform(X_tfidf, y)
 
 
@@ -123,9 +123,9 @@ from sklearn.model_selection import GridSearchCV
 
 # Define hyperparameters grid
 param_grid = {
-    'C': [0.01, 0.1, 1, 10, 100],  # Regularization strength
+    'C': [0.01, 0.1, 1],  # Regularization strength
     'loss': ['hinge', 'squared_hinge'],  # Type of loss function
-    'max_iter': [1000, 5000, 10000]  # Maximum number of iterations
+    'max_iter': [1000, 3000, 5000, 10000]  # Maximum number of iterations
 }
 
 # Perform Grid Search
@@ -147,13 +147,9 @@ y_pred = best_svm.predict(X_test)
 print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")
 print(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
 
-'''After'''
-from sklearn.metrics import confusion_matrix
-cm = confusion_matrix(y_test, y_pred)
-plt.figure(figsize=(12, 8))
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=label_encoder.classes_, yticklabels=label_encoder.classes_)
-plt.xlabel("Predicted")
-plt.ylabel("Actual")
-plt.title("Confusion Matrix")
-plt.show()
+# Evaluate on training set to check for overfitting
+y_train_pred = best_svm.predict(X_train)
+print("Training Classification Report:")
+print(classification_report(y_train, y_train_pred, target_names=label_encoder.classes_))
+
 
