@@ -131,7 +131,7 @@ param_grid = {
 # Perform Grid Search
 grid_search = GridSearchCV(LinearSVC(), param_grid, cv=5, scoring='accuracy', verbose=2, n_jobs=-1)
 grid_search.fit(X_train, y_train)
-S
+
 # Display best parameters
 print("Best Parameters:", grid_search.best_params_)
 
